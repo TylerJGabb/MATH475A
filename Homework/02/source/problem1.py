@@ -27,7 +27,7 @@ def algo2(x):
     terms = []
     s = 1
     for n in range(200,0,-1):
-        s = s * x / n + 1
+        s = s * (x / n + 1)
         terms.append(s)
 
     return terms
