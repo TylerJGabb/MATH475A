@@ -21,7 +21,7 @@ def find_smallest_closest_to(val):
         divisions += 1
         if VERBOSE:
             print(str.format("Division={0}  Result={1}", divisions, x))
-    return x_last
+    return (str(val) + "+" + str( x_last),divisions-1)
 
 
 def find_largest():
@@ -36,11 +36,11 @@ def find_largest():
         stage += 1
         if VERBOSE:
             print(str.format("Stage={0} Result={1}",stage,x))
-    return x_last
+    return (str(x_last),stage-1)
 
 
 def make_a_plot():
-    values = range(0,50,1)
+    values = range(0,1000,50)
     results = []
     for val in values:
         results.append(find_smallest_closest_to(val))
@@ -50,6 +50,12 @@ def make_a_plot():
     plt.show();
     input()
 
-
+def main():
+    (s0,n) = find_smallest_closest_to(0);
+    (s1,m) = find_smallest_closest_to(1);
+    (S2,N) = find_largest();
+    print("The smallest value closest to 0 is {0} and n = {1}".format(s0,n))
+    print("The smallest value closest to 1 is {0} and m = {1}".format(s1,m))
+    print("The largest value is {0} and N = {1}".format(S2,N))
         
         
