@@ -8,7 +8,6 @@ inf = math.inf
 nan = math.nan
 """
 
-
 def find_smallest_closest_to(val):
     """
     Finds eps and returns it
@@ -54,8 +53,14 @@ def main():
     (s0,n) = find_smallest_closest_to(0);
     (s1,m) = find_smallest_closest_to(1);
     (S2,N) = find_largest();
+    F = 2**N*(2-0.5**m) 
     print("The smallest value closest to 0 is {0} and n = {1}".format(s0,n))
     print("The smallest value closest to 1 is {0} and m = {1}".format(s1,m))
-    print("The largest value is {0} and N = {1}".format(S2,N))
+    print("The largest integer is {0} and N = {1}".format(S2,N))
+    print("The largest float   is {0}".format(F))
+    return F
+
+    
+
         
         
