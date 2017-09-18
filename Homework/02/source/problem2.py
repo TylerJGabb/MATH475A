@@ -6,11 +6,20 @@ VERBOSE = "-v" in sys.argv
 """
 inf = math.inf
 nan = math.nan
+
+each floating-point number is given the standard form
+
+(-1)**s * 2**(c-1023) * (1 + f)
+
+f: binary fraction (mantissa)
+c: exponent (characteristic)
+
+
 """
 
 def find_smallest_closest_to(val):
     """
-    Finds eps and returns it
+    Finds the smallest value to the right of val on the real-number line
     """
     x = 1.0
     divisions = 0
@@ -59,8 +68,5 @@ def main():
     print("The largest integer is {0} and N = {1}".format(S2,N))
     print("The largest float   is {0}".format(F))
     return F
-
     
-
-        
         

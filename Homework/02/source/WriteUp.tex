@@ -1,0 +1,60 @@
+\documentclass[11pt]{article}
+\usepackage{listings}
+%Gummi|065|=)
+\title{\textbf{Homework2\\
+			   Math475-A}}
+\author{Tyler J Gabb}
+\date{}
+\begin{document}
+
+\maketitle
+
+\section{Problem 1}
+We were tasked with applying two given algorithms for approximating $e^{x}|_{50}$. These algorithms are given below, in \emph{python3}.
+\\
+\\
+\textbf{Algorithm I}
+
+\begin{lstlisting}
+def algo1(x):
+	"""
+	Returns array of error terms, each of a successive 
+	iterative approximation for e raised to the power of x
+	"""
+    terms = []
+    s = 1
+    t = x
+    N_values = list(range(1,ITERS + 1))
+    for n in N_values:
+        s = s + t
+        t = t * x / (n + 1)
+        terms.append(s)
+
+    return [abs(M.exp(x) - y) for y in terms] 
+ 
+\end{lstlisting} 
+\\
+
+\textbf{Algorithm II} 
+ 
+\begin{lstlisting}   
+def algo2(x):
+    """
+    Returns an array of error terms, each of a sucessive
+    iterative approximation for e raised to the power of x.
+    """
+    terms = []
+    for i in range(ITERS):
+        s = 1
+        for n in range(i,0,-1):
+            s = s * x / n + 1
+        terms.append(s)
+        
+    return [abs(M.exp(x) - y) for y in terms]
+\end{lstlisting}
+Where $ITERS$ is a global constant passed in as a command line argument
+
+
+
+
+\end{document}
