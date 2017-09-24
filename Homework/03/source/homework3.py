@@ -26,7 +26,7 @@ def bisection(n):
         iters += 1
         if iters > 10000:
             print("\tnewtons is not converging within tolerance given")
-            return(None,None)
+            break
         if f(x) == 0:
             break
         if f(b)*f(x) < 0:
@@ -51,7 +51,7 @@ def newtons(n):
         x = iterator(x)
         if(iters > 10000):
             print("\tnewtons is not converging within tolerance given")
-            return(None,None)
+            break
     return(x,iters)
 
 
@@ -66,7 +66,7 @@ def equivalent_newtons(n):
         x = iterator(x)
         if(iters > 10000):
             print("\tequivalent_newtons is not converging within tolerance given")
-            return(None,None)
+            break
     return (x,iters)
 
 def fixed_pt(n,alpha):
@@ -81,7 +81,7 @@ def fixed_pt(n,alpha):
         iters += 1
         if(iters > 10000):
             print("\tfixed_pt is not converging within tolerance given with supplied alpha={0}".format(alpha))
-            return(None,None)        
+            break   
         x_last = x
         x = iterator(x)
     return (x,iters)
@@ -92,6 +92,7 @@ def main():
     n = float(sys.argv[1])
     (result,iters) = bisection(n)
     print('TOL = {0}'.format(TOL))
+    print('X   = {0}'.format(n))
     print()
     print('bisection:\t\tresult={0}\titerations={1}'.format(result,iters))
     (result1,iters1) = newtons(n)
@@ -104,6 +105,7 @@ def main():
     for alpha in [0.25,0.5,0.75]:
         (result,iters) = fixed_pt(n,alpha)
         print('alpha={0}\tresult={1}\titerations={2}'.format(alpha,result,iters))
+    print('====================================================================================')
 
 
 

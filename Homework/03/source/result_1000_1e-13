@@ -1,0 +1,12 @@
+TOL = 1e-13
+X   = 1000.0
+
+bisection:		result=31.62277660168381	iterations=54
+newtons:		result=31.622776601683793	iterations=11
+equivalent_newtons:	result=31.622776601683793	iterations=11
+bit for bit the results from newtons and equivalent_newtons are identical
+------fixed point-------
+alpha=0.25	result=31.622776601683825	iterations=61
+alpha=0.5	result=31.622776601683793	iterations=11
+alpha=0.75	result=31.622776601683803	iterations=52
+====================================================================================
