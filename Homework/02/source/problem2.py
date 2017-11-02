@@ -19,7 +19,7 @@ c: exponent (characteristic)
 
 def find_smallest_closest_to(val):
     """
-    Finds the smallest value to the right of val on the real-number line
+    Finds eps and returns it
     """
     x = 1.0
     divisions = 0
@@ -68,5 +68,9 @@ def main():
     print("The largest integer is {0} and N = {1}".format(S2,N))
     print("The largest float   is {0}".format(F))
     return F
+
+
     
+    
+        
         
