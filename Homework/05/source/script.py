@@ -57,20 +57,10 @@ def main():
 	plt.ylim([-6,4])
 	plt.savefig("python_lsq_" + str(M) + ".png")
 
-	if len(sys.argv) > 2 and '-v' in sys.argv:
+	if '-v' in sys.argv:
 		for i in range(0,len(x_vec)):
 			print(f_vec[i] - p(x_vec[i]), f_vec[i] - L(x_vec[i],x_vec,f_vec))
 
-	if not os.path.isfile(CUBIC_SPLINE_NAME):
-		fig2 = plt.figure()
-		plt.plot(x_vec,f_vec,'ko',label="data set")
-		cs = CubicSpline(x_vec,f_vec)
-		f_cs = [cs(x) for x in test]
-		plt.plot(test,f_cs,'b',label="cubic spline")
-		plt.legend()
-		plt.title("duck back cubic spline")
-		plt.ylim([-6,4])
-		plt.savefig(CUBIC_SPLINE_NAME)
 
 
 
