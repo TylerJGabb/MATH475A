@@ -10,7 +10,8 @@ CUBIC_SPLINE_NAME = "CubicSpline.png"
 def main():
 	#---------PREPARATION--------
 	if(len(sys.argv) < 2):
-		print("USAGE: python script.py m")
+		print("USAGE: python script.py M")
+		print("M is an integer representing the order polynomial to be fit")
 		print("OPTIONS: -v is verbose output")
 		sys.exit(1)
 
@@ -34,7 +35,6 @@ def main():
 	#solve the system X_t*X*a = X_t*f_vec
 	A = dot(X_t,X)
 	b = dot(X_t,f_vec)
-
 	a = np.linalg.solve(A,b)
 
 	#construct a polynomial with the data given
@@ -60,8 +60,6 @@ def main():
 	if '-v' in sys.argv:
 		for i in range(0,len(x_vec)):
 			print(f_vec[i] - p(x_vec[i]), f_vec[i] - L(x_vec[i],x_vec,f_vec))
-
-
 
 
 def l(i,x,x_vec):

@@ -35,7 +35,7 @@ for m = [20]
     test = linspace(0,14,100);
     f_c = polyval(a,test);
     scatter(x_vec,f_vec,'ro','MarkerFaceColor', 'r');
-    ylim([0,3]);
+    ylim([-6,4]);
     hold on
     plot(test,f_c,'k-','linewidth',2);
     print(sprintf('matlab_lsq_%d',m),'-dpng');

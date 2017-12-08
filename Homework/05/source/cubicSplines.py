@@ -1,10 +1,17 @@
+'''
+Program cubicSplines.py
+Author: Tyler Gabb
+MATH475A
+
+This program takes in a .dat or .csv file as input, parses the data points
+and generates a cubic spline between them. This is then output as a .png file
+'''
 import sys
 import os
 import numpy as np
 from numpy.linalg import inv
 from numpy import dot
 import matplotlib.pyplot as plt
-from scipy.interpolate import CubicSpline
 
 #define "special" functions
 p0 = lambda t: (1 + 2*t)*(t - 1)**2
@@ -36,12 +43,14 @@ def main():
     g_vec = get_g_vec(h_vec,f_vec)
     print(g_vec)
 
-    test = np.linspace(0,14,100)
+    #generate test data with splines
+    test = np.linspace(0,14,1000)
     res = []
     for x in test:
         spline = get_spline(x,g_vec,f_vec,x_vec)
         res.append(spline(x))
 
+    #find absolute error at each point, and find norm of those errors
     l2_abs_err = []
     for i in range(0,N):
         spline = get_spline(x_vec[i],g_vec,f_vec,x_vec)
@@ -76,16 +85,17 @@ def get_g_vec(h_vec,f_vec):
                (f_vec[i+1] - f_vec[i] )*3*h_vec[i-1]/h_vec[i]
 
 
-    #keep in mind that t(x_vec[0] or x_vec[19] = 0)
+    #keep in mind that t(x_vec[0] = 0 and x_vec[19] = 1)
+    #and f_CS^''(x_0 and x_N-1) == 0 --this needs to go in writeup
     #thus our boundary conditions for free conditions become
 
     F[ 0 ]  = 6*f_vec[ 0 ] - 6*f_vec[ 1 ]
-    F[N-1]  = 6*f_vec[N-2] - 6*f_vec[N-1]
+    F[N-1]  = 6*f_vec[N-1] - 6*f_vec[N-2]
 
     H[ 0 ][ 0 ] = -4*h_vec[ 0 ]
     H[ 0 ][ 1 ] = -2*h_vec[ 0 ]
-    H[N-1][N-2] = -4*h_vec[N-2]
-    H[N-1][N-1] = -2*h_vec[N-2]
+    H[N-1][N-2] =  2*h_vec[N-2]
+    H[N-1][N-1] =  4*h_vec[N-2]
 
     #for i in range(0,N):
         #print(H[i],F[i])

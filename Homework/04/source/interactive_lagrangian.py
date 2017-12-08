@@ -5,7 +5,7 @@ from numpy import *
 import matplotlib.pyplot as plt
 from time import sleep
 import random
-
+DELA = 0
 #define f(x)
 f = lambda x: arctan(x)
 
@@ -106,7 +106,7 @@ def redraw_plot():
     LAGRANGIAN.set_ydata(lagrangian_y)
 
     FIG.canvas.draw()
-    sleep(0.025)
+    sleep(0)
 
 def get_sample_x():
     '''
