@@ -1,0 +1,8 @@
+#! /bin/bash
+rm *.png
+nums=$(echo 5 10 15 20 )
+for num in $nums; do
+	python3 polynomialScript.py $num
+done
+
+python3 cubicSplines.py duck.dat

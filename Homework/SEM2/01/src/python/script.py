@@ -2,40 +2,51 @@ import numpy as np
 import matplotlib.pyplot as plt
 from decimal import Decimal
 
-#Laziness here
+#Laziness here#########################################
 sin = lambda a : np.sin(a)
 cos = lambda a : np.cos(a)
 exp = lambda a : np.exp(a)
 abs = lambda a : np.abs(a)
 sci = lambda num: '%.2E' % Decimal(num)
+#######################################################
 
-#useful predefined functions
+#useful predefined functions#####################################
 analytical_solution = lambda t: (cos(t) + sin(t) - exp(t))/2
 f = lambda t, x : x - sin(t)
 E = lambda t, x: max(abs(analytical_solution(t) - x))
-Euler_forward_single = lambda t, x, delta : x + f(t,x)*delta
+euler = lambda t, x, delta : x + f(t,x)*delta
 
-def Trap_multi(xn,tn,tn_plus_1,delta):
+def trap(xn,tn,tn_plus_1,delta):
 	a = 1 - delta/2
 	b = 1 + delta/2
 	c = delta/2
 	return (xn*b - c*(sin(tn) + sin(tn_plus_1)))/a
 
-def AM3(x0,x1,t0,t1,delta):
-	#n-1 = 0, n = 1
-	bneg = 5/12
-	b0 = 2/3
-	b1 = 1/12
-	a = 1-delta*bneg
-
-	
-
+'''Returns the ending slope of a given curve'''
+def slope(N_arr,E_arr,a=4,b=5):
+	E1 = E_arr[a];
+	E2 = E_arr[b]
+	N1 = N_arr[a];
+	N2 = N_arr[b]
+	return (E2 - E1)/(N2-N1)
+#################################################################
 
 ''' Adams Bashford 2nd Order'''
-def adams_bash_2(N,x1,power=1):
-	AB2 = lambda x1,x2,t1,t2,delta : x2 + (delta/2)*( 3*f(t2,x2) - f(t1,x1))
-	delta = np.pi/N**power;
+def AB2(N,firstGuessMethod):
+	__AB2 = lambda x1,x2,t1,t2,delta : x2 + (delta/2)*( 3*f(t2,x2) - f(t1,x1))
+	delta = np.pi/N;
 	t = np.arange(0,np.pi,delta)
+	if firstGuessMethod == 'trap':
+    		x1 = trap(0,0,delta,delta)
+	elif firstGuessMethod == 'euler':
+		x1 = euler(0,0,delta)
+	else:
+		delta2 = delta/N
+		t = list(np.arange(0,delta,delta2))
+		t_end = list(np.arange(delta,np.pi,delta))
+		t.extend(t_end)
+		t = np.array(t)
+		x1 = euler(0,0,delta2)
 	x = [0,x1];
 	i = 0;
 	while len(x) < len(t):
@@ -43,42 +54,79 @@ def adams_bash_2(N,x1,power=1):
 		x2 = x[-1]
 		t1 = t[i]
 		t2 = t[i+1]
-		x.append(AB2(x1,x2,t1,t2,delta))
+		x.append(__AB2(x1,x2,t1,t2,delta))
 		i += 1
-	return E(t,x)
+	return (E(t,x),t,x)
 
-def end_slope(N_arr,E_arr):
-	E1 = E_arr[-2];
-	E2 = E_arr[-1]
-	N1 = N_arr[-2];
-	N2 = N_arr[-1]
-	return (E2 - E1)/(N2-N1)
+'''Adams Molton 3rd order'''
+def AM3(N):
+	def __AM3(xmin,xn,tn,delta):
+		#n-1 = 0, n = 1
+		tmin = tn-delta
+		tplus = tn+delta
+		bneg = 5/12
+		b0 = 2/3
+		b1 = 1/12
+		a = 1-delta*bneg
+		fn = f(tn,xn)
+		fmin = f(tmin,xmin)
+		term1 = delta * (-bneg*sin(tplus) + b0*fn - b1*fmin)
+		#After consulting wikipedia, it was determined the sign on
+		#b1*fmin was incorrect, it was positive and needed to be negative
+		return (xn + term1)/a
+	delta = np.pi/N
+	t = np.arange(0,np.pi,delta)
+	x = [0,0]#just forward euler by default
+	i = 1
+	while len(x) < len(t):
+		xmin = x[-2]
+		xn = x[-1]
+		tn = t[i]
+		x.append(__AM3(xmin,xn,tn,delta))
+		i += 1
+	return (E(t,x),t,x)
 
-def adams_molton_3(N):
-
-
-
-
-
-def run_adams_bash_plot():
-	E_trap_multi = []
-	E_euler_forward = []
+def plotsComparative():
 	N_arr = [10**(i+1) for i in range(6)]
+	E_trap = []
+	E_euler = []
+	E_special = []
+	print('aquiring data')
 	for N in N_arr:
-		delta = np.pi/N;
-		x1_trap = Trap_multi(0,0,delta,delta)
-		x1_eulr = Euler_forward_single(0,0,delta)
-		E_trap_multi.append(adams_bash_2(N,x1_trap))
-		E_euler_forward.append(adams_bash_2(N,x1_eulr))
-		print('ran',N,'x1_trap=',x1_trap,'x1_eulr=',x1_eulr)
-
-	trap_slope = end_slope(N_arr,E_trap_multi)
-	eulr_slope = end_slope(N_arr,E_euler_forward)
-
-	plt.plot(N_arr,E_trap_multi,'r-',linewidth=2,label='Trapezoidal ' + sci(trap_slope))
-	plt.plot(N_arr,E_euler_forward,'b-',linewidth=2,label='Forward Euler ' + sci(eulr_slope))
+		print('N=',N)
+		E_trap.append(AB2(N,firstGuessMethod='trap')[0])
+		E_euler.append(AB2(N,firstGuessMethod='euler')[0])
+		E_special.append(AB2(N,firstGuessMethod='special')[0])
+	print('generating plots')
+	plt.plot(N_arr,E_trap,label='AB2_TRAP ' + sci(slope(N_arr,E_trap,1,5)))
+	plt.plot(N_arr,E_euler,label='AB2_EULR ' + sci(slope(N_arr,E_euler,1,5)))
+	plt.plot(N_arr,E_special,label='AB2_SPECL ' + sci(slope(N_arr,E_special,1,5)))
 	plt.yscale('log')
 	plt.xscale('log')
-	plt.grid(True)
 	plt.legend()
-	plt.savefig('adams_bash2.png')
+	plt.grid(True)
+	plt.savefig('plotsComparative.png')
+
+def plot_highResAM3():
+	N_arr = []
+	E_am3 = []
+	incr = 100
+	n = 100
+	while n <= 10000000:
+		N_arr.append(n)
+		n += incr
+		if len(str(n)) > len(str(incr)):
+			incr *= 10
+	for N in N_arr:
+		print('N=',N)
+		E_am3.append(AM3(N)[0])
+	plt.plot(N_arr,E_am3,label='AM3_TRAP')
+	plt.yscale('log')
+	plt.xscale('log')
+	plt.legend()
+	plt.grid(True)
+	plt.savefig('highResAM3.png')
+
+
+#plotsComparative()
+plot_highResAM3()
