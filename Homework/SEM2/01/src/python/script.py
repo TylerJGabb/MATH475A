@@ -37,10 +37,10 @@ def AB2(N,firstGuessMethod):
 	delta = np.pi/N;
 	t = np.arange(0,np.pi,delta)
 	if firstGuessMethod == 'trap':
-    		x1 = trap(0,0,delta,delta)
+        x1 = trap(0,0,delta,delta)
 	elif firstGuessMethod == 'euler':
 		x1 = euler(0,0,delta)
-	else:
+	else:#special
 		delta2 = delta/N
 		t = list(np.arange(0,delta,delta2))
 		t_end = list(np.arange(delta,np.pi,delta))
@@ -76,7 +76,7 @@ def AM3(N):
 		return (xn + term1)/a
 	delta = np.pi/N
 	t = np.arange(0,np.pi,delta)
-	x = [0,0]#just forward euler by default
+	x = [0,0.05]
 	i = 1
 	while len(x) < len(t):
 		xmin = x[-2]
@@ -86,47 +86,62 @@ def AM3(N):
 		i += 1
 	return (E(t,x),t,x)
 
+def plot_highResAM3(data_only=False):
+    N_arr = []
+    E_am3 = []
+    incr = 10
+    n = 10
+    while n <= 	1000000:
+        N_arr.append(n)
+        n += incr
+        if len(str(n)) > len(str(incr)):
+	        incr *= 10
+			
+    for N in N_arr:
+        print('N=',N)
+        E_am3.append(AM3(N)[0])
+    if data_only:
+        return (N_arr,E_am3)
+    else:
+        plt.plot(N_arr,E_am3,label='AM3_TRAP ' + sci(slope(N_arr,E_am3,27,36)))
+        plt.yscale('log')
+        plt.xscale('log')
+        plt.legend()
+        plt.grid(True)
+        plt.savefig('highResAM3_' + str(N_arr[-1]) + '.png')
+
 def plotsComparative():
-	N_arr = [10**(i+1) for i in range(6)]
+	N_arr = [n*10**m for n in range(1,10) for m in (2,3,4,5)]
+	N_arr.sort()
+	N_arr.append(1000000);
 	E_trap = []
 	E_euler = []
 	E_special = []
+	E_am3 = []
 	print('aquiring data')
 	for N in N_arr:
 		print('N=',N)
+		print('\tAB2_TRAP')
 		E_trap.append(AB2(N,firstGuessMethod='trap')[0])
+		print('\tAB2_EULR')
 		E_euler.append(AB2(N,firstGuessMethod='euler')[0])
+		print('\tAB2_SPECL')
 		E_special.append(AB2(N,firstGuessMethod='special')[0])
+		print('\tAM3_EULR')
+		E_am3.append(AM3(N)[0])
+
 	print('generating plots')
-	plt.plot(N_arr,E_trap,label='AB2_TRAP ' + sci(slope(N_arr,E_trap,1,5)))
-	plt.plot(N_arr,E_euler,label='AB2_EULR ' + sci(slope(N_arr,E_euler,1,5)))
-	plt.plot(N_arr,E_special,label='AB2_SPECL ' + sci(slope(N_arr,E_special,1,5)))
+	plt.plot(N_arr,E_trap,label='AB2_TRAP ' + sci(slope(N_arr,E_trap,18,27)))
+	plt.plot(N_arr,E_euler,label='AB2_EULR ' + sci(slope(N_arr,E_euler,18,27)))
+	plt.plot(N_arr,E_special,label='AB2_SPECL ' + sci(slope(N_arr,E_special,18,27)))
+	plt.plot(N_arr,E_am3,label='AM3_EULR ' + sci(slope(N_arr,E_am3,18,27)))
 	plt.yscale('log')
 	plt.xscale('log')
 	plt.legend()
 	plt.grid(True)
 	plt.savefig('plotsComparative.png')
 
-def plot_highResAM3():
-	N_arr = []
-	E_am3 = []
-	incr = 100
-	n = 100
-	while n <= 10000000:
-		N_arr.append(n)
-		n += incr
-		if len(str(n)) > len(str(incr)):
-			incr *= 10
-	for N in N_arr:
-		print('N=',N)
-		E_am3.append(AM3(N)[0])
-	plt.plot(N_arr,E_am3,label='AM3_TRAP')
-	plt.yscale('log')
-	plt.xscale('log')
-	plt.legend()
-	plt.grid(True)
-	plt.savefig('highResAM3.png')
 
 
-#plotsComparative()
-plot_highResAM3()
+plotsComparative()
+#plot_highResAM3()
