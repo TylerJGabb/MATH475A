@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from decimal import Decimal
+import math
 
 #Laziness here#########################################
 sin = lambda a : np.sin(a)
@@ -35,19 +36,28 @@ def slope(N_arr,E_arr,a=4,b=5):
 def AB2(N,firstGuessMethod):
 	__AB2 = lambda x1,x2,t1,t2,delta : x2 + (delta/2)*( 3*f(t2,x2) - f(t1,x1))
 	delta = np.pi/N;
-	t = np.arange(0,np.pi,delta)
 	if firstGuessMethod == 'trap':
-        x1 = trap(0,0,delta,delta)
+		x1 = trap(0,0,delta,delta)
 	elif firstGuessMethod == 'euler':
 		x1 = euler(0,0,delta)
 	else:#special
-		delta2 = delta/N
-		t = list(np.arange(0,delta,delta2))
-		t_end = list(np.arange(delta,np.pi,delta))
-		t.extend(t_end)
-		t = np.array(t)
-		x1 = euler(0,0,delta2)
-	x = [0,x1];
+		'''Find X1 via AB2 with N divisions between 0 and t1'''
+		delta_subint = delta/N
+		t_subint = np.arange(0,delta + delta_subint ,delta_subint)
+		x_subint = [0,0]#start with simple forward euler
+		i = 0;
+		while len(x_subint) < len(t_subint):
+			x1 = x_subint[-2]
+			x2 = x_subint[-1]
+			t1 = t_subint[i]
+			t2 = t_subint[i+1]
+			x_subint.append(__AB2(x1,x2,t1,t2,delta_subint))
+			i += 1
+		x1 = x_subint[-1];
+
+	'''STAGE TWO: Begin AB2 With newly found X1'''
+	x = [0,x1]
+	t = np.arange(0,np.pi + delta, delta)
 	i = 0;
 	while len(x) < len(t):
 		x1 = x[-2]
@@ -58,57 +68,56 @@ def AB2(N,firstGuessMethod):
 		i += 1
 	return (E(t,x),t,x)
 
-'''Adams Molton 3rd order'''
+'''
+Adams Molton 3rd order
+'''
 def AM3(N):
+	delta = np.pi/N
+	'''For internal use only, AB3 method defined in function scope'''
 	def __AM3(xmin,xn,tn,delta):
 		#n-1 = 0, n = 1
 		tmin = tn-delta
 		tplus = tn+delta
 		bneg = 5/12
 		b0 = 2/3
-		b1 = 1/12
+		b1 = -1/12 #Don't fugg up this time mang
 		a = 1-delta*bneg
 		fn = f(tn,xn)
 		fmin = f(tmin,xmin)
-		term1 = delta * (-bneg*sin(tplus) + b0*fn - b1*fmin)
-		#After consulting wikipedia, it was determined the sign on
-		#b1*fmin was incorrect, it was positive and needed to be negative
+		term1 = delta * (-bneg*sin(tplus) + b0*fn + b1*fmin)
 		return (xn + term1)/a
-	delta = np.pi/N
-	t = np.arange(0,np.pi,delta)
-	x = [0,0.05]
+
+
+	'''STAGE ONE: To subinterval iteration with N intervals between 0 and t1 to find x1'''
+	delta_subint = delta/N
+	t_subint = np.arange(0,delta + delta_subint, delta_subint);
+	x_subint = [0,0] #simple euler to start again
 	i = 1
+	while len(x_subint) < len(t_subint):
+		x1 = x_subint[-2]
+		x2 = x_subint[-1]
+		t1 = t_subint[i]
+		x_subint.append(__AM3(x1,x2,t1,delta_subint));
+		i += 1
+	x1 = x_subint[-1]
+	x = [0,x1]
+	t = np.arange(0,np.pi + delta, delta)
+	i = 1;
+	'''STAGE TWO: To regular interval iteration  with AM3 with newly found X1'''
 	while len(x) < len(t):
-		xmin = x[-2]
-		xn = x[-1]
-		tn = t[i]
-		x.append(__AM3(xmin,xn,tn,delta))
+		x1 = x[-2]
+		x2 = x[-1]
+		t1 = t[i]
+		x.append(__AM3(x1,x2,t1,delta))
 		i += 1
 	return (E(t,x),t,x)
+	
 
-def plot_highResAM3(data_only=False):
-    N_arr = []
-    E_am3 = []
-    incr = 10
-    n = 10
-    while n <= 	1000000:
-        N_arr.append(n)
-        n += incr
-        if len(str(n)) > len(str(incr)):
-	        incr *= 10
-			
-    for N in N_arr:
-        print('N=',N)
-        E_am3.append(AM3(N)[0])
-    if data_only:
-        return (N_arr,E_am3)
-    else:
-        plt.plot(N_arr,E_am3,label='AM3_TRAP ' + sci(slope(N_arr,E_am3,27,36)))
-        plt.yscale('log')
-        plt.xscale('log')
-        plt.legend()
-        plt.grid(True)
-        plt.savefig('highResAM3_' + str(N_arr[-1]) + '.png')
+def orderOfDecade(decade,N_arr,E_arr):
+	decade = int(decade)
+	i = N_arr.index(decade);
+	return str(abs(round(math.log(E_arr[i+9],10) - math.log(E_arr[i],10),3)))
+
 
 def plotsComparative():
 	N_arr = [n*10**m for n in range(1,10) for m in (2,3,4,5)]
@@ -131,16 +140,17 @@ def plotsComparative():
 		E_am3.append(AM3(N)[0])
 
 	print('generating plots')
-	plt.plot(N_arr,E_trap,label='AB2_TRAP ' + sci(slope(N_arr,E_trap,18,27)))
-	plt.plot(N_arr,E_euler,label='AB2_EULR ' + sci(slope(N_arr,E_euler,18,27)))
-	plt.plot(N_arr,E_special,label='AB2_SPECL ' + sci(slope(N_arr,E_special,18,27)))
-	plt.plot(N_arr,E_am3,label='AM3_EULR ' + sci(slope(N_arr,E_am3,18,27)))
+
+	decade = 10**3
+	plt.plot(N_arr,E_trap,label='AB2_TRAP O=' + orderOfDecade(decade,N_arr,E_trap))
+	plt.plot(N_arr,E_euler,label='AB2_EULR O=' + orderOfDecade(decade,N_arr,E_euler))
+	plt.plot(N_arr,E_special,label='AB2_SPECL O=' + orderOfDecade(decade,N_arr,E_special))
+	plt.plot(N_arr,E_am3,label='AM3_SPECL O=' + orderOfDecade(decade,N_arr,E_am3))
 	plt.yscale('log')
 	plt.xscale('log')
 	plt.legend()
 	plt.grid(True)
 	plt.savefig('plotsComparative.png')
-
 
 
 plotsComparative()
