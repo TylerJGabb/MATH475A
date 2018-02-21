@@ -1,6 +1,7 @@
 import numpy as np;
 import matplotlib.pyplot as plt;
 import math;
+from scipy.optimize import fsolve;
 #Setup functions to be used in script environment
 abs = lambda a : np.abs(a)
 
@@ -9,14 +10,23 @@ def orderOfDecade(decade,N_arr,E_arr):
 	i = N_arr.index(decade);
 	return str(abs(round(math.log(E_arr[i+9],10) - math.log(E_arr[i],10),3)))
 
-
-
-
-#Define Special Functions 
 f = lambda x : 1 / (1 + x) #Note is only a function of x
 soln = lambda t: np.sqrt(4 + 2*t) - 1
 Emax = lambda x,t: np.max(abs(x - soln(t)))
 Eend = lambda x,t: abs(x[-1] - soln(t[-1]))
+
+
+
+def trapIter(xn,delta):
+    '''uses nested lambda function to return function that is then optimized by fsolve.'''
+    gp = lambda xn, delta : lambda xnplus1 : xn - xnplus1 + ( f(xn) + f(xnplus1) )*delta/2
+    '''
+    g prime, is a function when given xn and delta returns a function of xnplus1, on which
+    a root finding methods can be used to find the value of xnplus1 which makes that function zero
+    '''
+    g = gp(xn,delta)
+    return fsolve(g,0)
+
 
 #How does the error at t=16 depend on N with TRAP?
 
@@ -56,4 +66,4 @@ def plotRK4():
     plt.legend();
     plt.show()
 
-plotRK4()
+
