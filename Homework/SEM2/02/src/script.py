@@ -2,6 +2,7 @@ import numpy as np;
 import matplotlib.pyplot as plt;
 import math;
 from scipy.optimize import fsolve;
+import time
 #Setup functions to be used in script environment
 abs = lambda a : np.abs(a)
 
@@ -17,15 +18,21 @@ Eend = lambda x,t: abs(x[-1] - soln(t[-1]))
 
 
 
-def trapIter(xn,delta):
-    '''uses nested lambda function to return function that is then optimized by fsolve.'''
-    gp = lambda xn, delta : lambda xnplus1 : xn - xnplus1 + ( f(xn) + f(xnplus1) )*delta/2
-    '''
-    g prime, is a function when given xn and delta returns a function of xnplus1, on which
-    a root finding methods can be used to find the value of xnplus1 which makes that function zero
-    '''
+gp = lambda xn, delta : lambda xnplus1 : xn - xnplus1 + ( f(xn) + f(xnplus1) )*delta/2
+def trapIter(xn,delta,guess=0):
     g = gp(xn,delta)
-    return fsolve(g,0)
+    return fsolve(g,guess)[0]
+
+def TRAP(N):
+    delta = 16/N
+    t = np.arange(0,16+delta,delta)
+    x = [1];
+    while len(x) < len(t):
+        x.append(trapIter(x[-1],delta,x[-1]))
+    x = np.array(x);
+    return (t,x,Emax(x,t),Eend(x,t));
+
+
 
 
 #How does the error at t=16 depend on N with TRAP?
@@ -53,11 +60,19 @@ def plotRK4():
     Emaxes = []
 
     print("__RK4__".center(40,'#'))
-    for n in N:
-        print("n="+str(n))
-        (t,x,Emax,Eend) = RK4(n);
-        Eendings.append(Eend)
-        Emaxes.append(Emax)
+    try:
+        tic = time.time()
+        for n in N:
+            (t,x,Emax,Eend) = RK4(n);
+            print("n="+str(n)+", time="+str(round(time.time() - tic,2)) + "[s]")
+            Eendings.append(Eend)
+            Emaxes.append(Emax)
+    except KeyboardInterrupt as ki:
+        minlen = min([len(Eendings),len(Emaxes)])
+        N = N[0:minlen]
+        Eendings = Eendings[0:minlen]
+        Emaxes = Emaxes[0:minlen]
+
     plt.plot(N,Emaxes,label="Emax O="+orderOfDecade(10**2,N,Emaxes))
     plt.plot(N,Eendings,label="Eend O="+orderOfDecade(10**2,N,Eendings))
     plt.yscale('log')
@@ -66,4 +81,77 @@ def plotRK4():
     plt.legend();
     plt.show()
 
+
+def plotTRAP():
+    N = [n*10**m for m in [2,3,4,5] for n in range(1,10)]
+    N = [N[i] for i in range(len(N)) if i % 2 == 0]
+    N.append(1000000)
+    Eendings = []
+    Emaxes = []
+
+    print("__TRAP__".center(40,'#'))
+
+    try:
+        tic = time.time()
+        for n in N:
+            (t,x,Emax,Eend) = TRAP(n);
+            print("n="+str(n)+", time="+str(round(time.time() - tic,2)) + "[s]")
+            Eendings.append(Eend)
+            Emaxes.append(Emax)
+    except KeyboardInterrupt as ki:
+        minlen = min([len(Eendings),len(Emaxes)])
+        N = N[0:minlen]
+        Eendings = Eendings[0:minlen]
+        Emaxes = Emaxes[0:minlen]
+
+    plt.plot(N,Emaxes,label="Emax O="+orderOfDecade(10**2,N,Emaxes))
+    plt.plot(N,Eendings,label="Eend O="+orderOfDecade(10**2,N,Eendings))
+    plt.yscale('log')
+    plt.xscale('log')
+    plt.grid(True)
+    plt.legend();
+    plt.show()
+
+def plotMethod(method,everyOther=False):
+    N = [n*10**m for m in [2,3,4,5] for n in range(1,10)]
+    if everyOther:
+        N = [N[i] for i in range(len(N)) if i % 2 == 0]
+    N.append(1000000)
+    Eendings = []
+    Emaxes = []
+
+    print(str(method).split(' ')[1].center(40,'#'))
+    tics = [];
+    try:
+        tic = time.time()
+
+        for n in N:
+            (t,x,Emax,Eend) = method(n);
+            print("n="+str(n)+", time="+str(round(time.time() - tic,2)) + "[s]")
+            tics.append(round(time.time() - tic,2))
+            Eendings.append(Eend)
+            Emaxes.append(Emax)
+    except KeyboardInterrupt as ki:
+        minlen = min([len(Eendings),len(Emaxes)])
+        N = N[0:minlen]
+        Eendings = Eendings[0:minlen]
+        Emaxes = Emaxes[0:minlen]
+
+    plt.plot(N,Emaxes,label="Emax O="+orderOfDecade(10**2,N,Emaxes))
+    plt.plot(N,Eendings,label="Eend O="+orderOfDecade(10**2,N,Eendings))
+    plt.yscale('log')
+    plt.xscale('log')
+    plt.grid(True)
+    plt.legend();
+    plt.show()
+
+    plt.cla();
+    plt.clf();
+    plt.plot(N,tics,'r-',label="iteration time in seconds")
+    plt.title("Iteration Time VS. N")
+    plt.ylabel('[sec]')
+    plt.xlabel('discretization size')
+    plt.legend();
+    plt.grid(True);
+    plt.show();
 
