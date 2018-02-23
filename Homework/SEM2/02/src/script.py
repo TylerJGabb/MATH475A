@@ -6,10 +6,12 @@ import time
 #Setup functions to be used in script environment
 abs = lambda a : np.abs(a)
 
-def orderOfDecade(decade,N_arr,E_arr):
-	decade = int(decade)
-	i = N_arr.index(decade);
-	return str(abs(round(math.log(E_arr[i+9],10) - math.log(E_arr[i],10),3)))
+def orderOfDecade(decade,N,E):
+    decade = int(decade)
+    i = N.index(decade)
+    j = 0;
+    while N[j] < decade*10 : j += 1;
+    return str(abs(round(math.log(E[j],10) - math.log(E[i],10),3)))
 
 f = lambda x : 1 / (1 + x) #Note is only a function of x
 soln = lambda t: np.sqrt(4 + 2*t) - 1
@@ -32,11 +34,6 @@ def TRAP(N):
     x = np.array(x);
     return (t,x,Emax(x,t),Eend(x,t));
 
-
-
-
-#How does the error at t=16 depend on N with TRAP?
-
 #RK Part
 def RK4(N):
     delta = 16/N
@@ -52,6 +49,16 @@ def RK4(N):
         x.append(__RK4(x[-1]))
     x = np.array(x);
     return (t,x,Emax(x,t),Eend(x,t))
+
+
+
+
+
+
+
+
+#==================================================================================================
+#==================================================================================================
 
 def plotRK4():
     N = [n*10**m for m in [2,3,4,5] for n in range(1,10)]
@@ -80,7 +87,6 @@ def plotRK4():
     plt.grid(True)
     plt.legend();
     plt.show()
-
 
 def plotTRAP():
     N = [n*10**m for m in [2,3,4,5] for n in range(1,10)]
@@ -113,10 +119,10 @@ def plotTRAP():
     plt.show()
 
 def plotMethod(method,everyOther=False):
-    N = [n*10**m for m in [2,3,4,5] for n in range(1,10)]
-    if everyOther:
-        N = [N[i] for i in range(len(N)) if i % 2 == 0]
+    distribution = (1,2,4,6,8) if everyOther else (1,2,3,4,5,6,7,8,9)
+    N = [n*10**m for m in [2,3,4,5] for n in distribution]
     N.append(1000000)
+
     Eendings = []
     Emaxes = []
 
@@ -124,7 +130,6 @@ def plotMethod(method,everyOther=False):
     tics = [];
     try:
         tic = time.time()
-
         for n in N:
             (t,x,Emax,Eend) = method(n);
             print("n="+str(n)+", time="+str(round(time.time() - tic,2)) + "[s]")
