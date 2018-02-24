@@ -1,0 +1,56 @@
+
+Windows IP Configuration
+
+   Host Name . . . . . . . . . . . . : DESKTOP-LI31P5A
+   Primary Dns Suffix  . . . . . . . : 
+   Node Type . . . . . . . . . . . . : Hybrid
+   IP Routing Enabled. . . . . . . . : No
+   WINS Proxy Enabled. . . . . . . . : No
+   DNS Suffix Search List. . . . . . : arizona.edu
+
+Wireless LAN adapter Local Area Connection* 1:
+
+   Media State . . . . . . . . . . . : Media disconnected
+   Connection-specific DNS Suffix  . : 
+   Description . . . . . . . . . . . : Microsoft Wi-Fi Direct Virtual Adapter
+   Physical Address. . . . . . . . . : B6-AE-2B-3B-B6-A8
+   DHCP Enabled. . . . . . . . . . . : Yes
+   Autoconfiguration Enabled . . . . : Yes
+
+Wireless LAN adapter Wi-Fi:
+
+   Connection-specific DNS Suffix  . : arizona.edu
+   Description . . . . . . . . . . . : Marvell AVASTAR Wireless-AC Network Controller
+   Physical Address. . . . . . . . . : B4-AE-2B-3B-B7-A9
+   DHCP Enabled. . . . . . . . . . . : Yes
+   Autoconfiguration Enabled . . . . : Yes
+   Link-local IPv6 Address . . . . . : fe80::596a:54b7:ab32:8f95%15(Preferred) 
+   IPv4 Address. . . . . . . . . . . : 10.142.215.30(Preferred) 
+   Subnet Mask . . . . . . . . . . . : 255.255.192.0
+   Lease Obtained. . . . . . . . . . : Thursday, February 22, 2018 2:51:50 PM
+   Lease Expires . . . . . . . . . . : Thursday, February 22, 2018 7:07:22 PM
+   Default Gateway . . . . . . . . . : 10.142.192.1
+   DHCP Server . . . . . . . . . . . : 10.133.127.254
+   DHCPv6 IAID . . . . . . . . . . . : 112504363
+   DHCPv6 Client DUID. . . . . . . . : 00-01-00-01-21-45-1C-93-B4-AE-2B-3B-B7-A9
+   DNS Servers . . . . . . . . . . . : 128.196.11.234
+                                       128.196.11.233
+   NetBIOS over Tcpip. . . . . . . . : Enabled
+
+Ethernet adapter Bluetooth Network Connection:
+
+   Media State . . . . . . . . . . . : Media disconnected
+   Connection-specific DNS Suffix  . : 
+   Description . . . . . . . . . . . : Bluetooth Device (Personal Area Network)
+   Physical Address. . . . . . . . . : B4-AE-2B-3B-B7-AA
+   DHCP Enabled. . . . . . . . . . . : Yes
+   Autoconfiguration Enabled . . . . : Yes
+
+Tunnel adapter Local Area Connection* 11:
+
+   Media State . . . . . . . . . . . : Media disconnected
+   Connection-specific DNS Suffix  . : 
+   Description . . . . . . . . . . . : Microsoft Teredo Tunneling Adapter
+   Physical Address. . . . . . . . . : 00-00-00-00-00-00-00-E0
+   DHCP Enabled. . . . . . . . . . . : No
+   Autoconfiguration Enabled . . . . : Yes
