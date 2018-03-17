@@ -3,11 +3,10 @@ import os
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-solution = lambda t : 0 if (t > 1 or t < 0) else 1
-
 sin = lambda x: np.sin(x)
 pi = np.pi
 t0 = 1
+solution = lambda t : 0 if (t > t0 or t < 0) else 1
 
 #returns functions of t
 def term(k):    
@@ -25,12 +24,24 @@ def x_approx(N,t):
     return sum
 
 def main():
-    ret = x_approx(5,0.5)
     sols = []
+    appr4 = []
+    appr8 = []
+    appr16 = []
+    appr32 = []
+    appr64 = [] 
+    apprs = [(appr4,4),(appr8,8),(appr16,16),(appr32,32)]
     pts = np.arange(0,2*pi+0.01,0.01)
     for t in pts:
         sols.append(solution(t))
-    plt.plot(pts,sols)
+        for appr in apprs:
+            # print(t,appr)
+            appr[0].append(x_approx(appr[1],t))
+    plt.plot(pts,sols,'k-',linewidth=2,label='solution')
+    for appr in apprs:
+        plt.plot(pts,appr[0],label='N='+str(appr[1]))
+    plt.legend()
+    plt.title('t0=' + str(t0))
     plt.show()
 
 
