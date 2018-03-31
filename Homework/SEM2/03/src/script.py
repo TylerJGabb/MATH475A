@@ -3,6 +3,7 @@ import os
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.integrate import simps
 
 sin = lambda x: np.sin(x)
 cos = lambda x: np.cos(x)
@@ -33,11 +34,6 @@ def p_hat(k,N):
     retval = abs(x_hat(k,N))**2
     return retval
 
-'''
-    p tildas only found once for each k
-    p hats found for each value of N for each k
-'''
-
 def generate_power_data():
     k_arr = list(range(0,1000))
     p_hat_10 = []
@@ -60,7 +56,6 @@ def generate_power_data():
     plt.savefig('power_data_t0={}.png'.format(t0))
     plt.show()
 
-
 def generate_power_data_differences():
     k_arr = list(range(0, 1000))
     p_hat_10 = []
@@ -78,11 +73,10 @@ def generate_power_data_differences():
     plt.legend()
     plt.xlabel('k')
     plt.grid(True)
-    plt.ylim([-10E-5,10E-4])
+    plt.ylim([10E-9,10E-4])
     plt.title('t0={}, Power Data Differences'.format(t0))
     plt.savefig('power_data_difference_t0={}.png'.format(t0))
     plt.show()
-    
 
 def x_approx(N, t):
     # returns functions of t
@@ -97,29 +91,6 @@ def x_approx(N, t):
     sum *= 1/pi
     sum += t0/(2*pi)
     return sum
-
-
-def max_norm(N):
-    delta = 2*pi/N
-    if delta > 0.01:
-        delta = 0.01
-    E = []
-    pts = np.arange(0, 2*pi,delta)
-    for t in pts:
-        E.append(abs(solution(t)-x_approx(N, t)))
-    return max(E)
-
-
-def max_norm_numerical():
-    E = []
-    N = np.arange(100,2100,100)
-    for n in N:
-        print(n)
-        E.append(max_norm(n))
-    plt.plot(N,E)
-    plt.savefig('max_norm_data.png')
-    plt.show()
-
 
 def generate_overlay_plot():
     sols = []
@@ -137,8 +108,8 @@ def generate_overlay_plot():
     plt.title('t0=' + str(t0))
     plt.savefig('overlay.png')
 
-
 def generate_one_plot(N):
+    print('wtf?')
     sols = []
     appr = []
     pts = np.arange(0, 2*pi,0.01)
@@ -150,12 +121,57 @@ def generate_one_plot(N):
     plt.plot(pts, appr, label='N='+str(N))
     plt.legend()
     plt.title('t0=' + str(t0))
+    plt.savefig('approximate_solution_N={}.png'.format(N))
+    plt.show()
+
+def do_simpy_L2_norm(N):
+    print('simpy',N)
+    global T
+    f = lambda N: lambda t: abs(solution(t) - x_approx(N,t))**2
+    delta = T/1000
+    x = np.arange(0,T,delta)
+    y = [f(N)(t) for t in x]
+    soln = simps(y,x,delta)
+    return soln
+
+def do_max_norm(N):
+    delta = T/1000
+    E = []
+    pts = np.arange(0, T, delta)
+    for t in pts:
+        E.append(abs(solution(t)-x_approx(N, t)))
+    return max(E)
+
+def get_simpy_data(N_max):
+    N_arr = range(N_max)
+    solns = []
+    for n in N_arr:
+        print('simpy',n)
+        solns.append(do_simpy_L2_norm(n))
+    return (N_arr, solns)
+
+def get_infy_data(N_max):
+    N_arr = range(N_max)
+    solns = []
+    for n in N_arr:
+        print('infy',n)
+        solns.append(do_max_norm(n))
+    return (N_arr,solns)
+
+def do_plot_norm(N_max):
+    infy_dat = get_infy_data(N_max)
+    simpy_dat = get_simpy_data(N_max)
+    plt.plot(*infy_dat,label='infinity norm')
+    plt.plot(*simpy_dat,label='L2 norm')
+    plt.legend()
+    plt.grid(True)
+    plt.savefig('norm_data.png')
     plt.show()
 
 
 if __name__ == '__main__':
-    generate_power_data()
-    generate_power_data_differences()
+    generate_power_data_differences();
+    
 
 
 
