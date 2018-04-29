@@ -84,9 +84,9 @@ def do_a_plot(M, color, ax, maxt=0.2, label=None):
         cp = func(c[-1], delta, D)
         c.append(cp)
     print('done')
-    Z = np.array([[float(np.nan if abs(ccc - 0.3) > 0.7 else ccc) for ccc in cc] for cc in c])
+    Z = np.array([[float(np.nan if abs(ccc - 0.3) > 0.3 else ccc) for ccc in cc] for cc in c])
     X, Y = np.meshgrid(n_arr, t_arr)
-    ax.plot_wireframe(X, Y, Z, color=color, label='{} delta={}, M={}'.format(label, delta, M), rstride=M // 100 + 1,
+    ax.plot_wireframe(X, Y, Z, color=color, label='{} delta={}, M={}'.format(label, delta, M), rstride=M // 400 + 1,
                       cstride=N // 20 + 1)
 
 
@@ -126,11 +126,11 @@ def get_vol(N,D):
     return vol
 
 def do_eyeball():
-    M1 = 512
-    M2 = 1024
+    M1 = 39000
+    M2 = 40000
     ax = plt.axes(projection='3d')
-    do_a_plot(M1, 'red', ax, maxt=0.2, label='backward')
-    do_a_plot(M2, 'blue', ax, maxt=0.2, label='backward')
+    do_a_plot(M1, 'red', ax, maxt=0.025, label='forward')
+    do_a_plot(M2, 'blue', ax, maxt=0.025, label='forward')
     plt.legend()
     plt.show()
 
@@ -160,48 +160,20 @@ def plot_results():
     logN = np.log(N)
     order_non = (lognon[-1] - lognon[0])/(logN[-1] - logN[0])
     order_sym = (logsym[-1] - logsym[0])/(logN[-1] - logN[0])
-    plt.plot(N,non_sym,label='non symmetrical O={}'.format(round(order_non,2)))
-    plt.plot(N,sym,label='symmetrical O={}'.format(round(order_sym,1)))
+    ax = plt.axes()
+    ax.yaxis.set_label_position("right")
+    plt.plot(N,non_sym,label='non symmetrical O={}'.format(round(order_non,2)),linewidth=2)
+    plt.plot(N,sym,label='symmetrical O={}'.format(round(order_sym,1)),linewidth=2)
     plt.yscale('log')
     plt.xscale('log')
-    plt.ylabel('distance from true volume')
-    plt.xlabel('N')
+    plt.ylabel('Distance from Truth',fontsize=18)
+    plt.xlabel('N',fontsize=18)
     plt.title('Convergence: Volume Under Surface\n Truth is considered at N=1024')
     plt.legend()
-
     plt.show()
 
-plot_results()
+do_eyeball()
 
-
-def attempt(N, D):
-    Delta = 1 / N
-    delta = Delta
-    n_arr = np.arange(0, 1, Delta)
-    t_arr = np.arange(0, 1 + delta, delta)
-    c = [get_c0(N)]
-    i = 0
-    while len(c) < len(t_arr):
-        cp = backward_euler(c[-1], delta, D)
-        c.append(cp)
-    X, Y = np.meshgrid(n_arr, t_arr)
-    Z = np.array([[float(np.nan if abs(ccc - 0.3) > 0.7 else ccc) for ccc in cc] for cc in c])
-    XX = []
-    for x in X:
-        for xx in x:
-            XX.append(float(xx))
-    YY = []
-    for y in Y:
-        for yy in y:
-            YY.append(float(yy))
-    ZZ = []
-    for z in Z:
-        for zz in z:
-            ZZ.append(float(zz))
-    points = [[XX[i],YY[i],ZZ[i]] for i in range(len(ZZ))]
-    #print('calculating volume')
-    vol = ss.ConvexHull(points).volume
-    #print('done')
 
 
 
